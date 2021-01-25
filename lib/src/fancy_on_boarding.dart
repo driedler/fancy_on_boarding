@@ -25,10 +25,20 @@ class FancyOnBoarding extends StatefulWidget {
   final double bottomMargin;
   final Widget doneButton;
   final Widget skipButton;
+  final String previousButtonText;
+  final ShapeBorder previousButtonShape;
+  final TextStyle previousButtonTextStyle;
+  final Color previousButtonColor;
+  final String nextButtonText;
+  final ShapeBorder nextButtonShape;
+  final TextStyle nextButtonTextStyle;
+  final Color nextButtonColor;
+  final bool gestureEnabled;
+  final Function(Function(int)) setPageController;
 
   FancyOnBoarding({
     @required this.pageList,
-    @required this.onDoneButtonPressed,
+    this.onDoneButtonPressed,
     this.onSkipButtonPressed,
     this.doneButtonText = "Done",
     this.doneButtonShape,
@@ -37,18 +47,27 @@ class FancyOnBoarding extends StatefulWidget {
     this.skipButtonText = "Skip",
     this.skipButtonTextStyle,
     this.skipButtonColor,
-    this.showSkipButton = true,
+    this.showSkipButton = false,
     this.bottomMargin = 8.0,
     this.doneButton,
     this.skipButton,
-  }) : assert(pageList.length != 0 && onDoneButtonPressed != null);
+    this.previousButtonText,
+    this.previousButtonShape,
+    this.previousButtonTextStyle,
+    this.previousButtonColor,
+    this.nextButtonText,
+    this.nextButtonShape,
+    this.nextButtonTextStyle,
+    this.nextButtonColor,
+    this.gestureEnabled = true,
+    this.setPageController,
+  }) : assert(pageList.length != 0);
 
   @override
   _FancyOnBoardingState createState() => _FancyOnBoardingState();
 }
 
-class _FancyOnBoardingState extends State<FancyOnBoarding>
-    with TickerProviderStateMixin {
+class _FancyOnBoardingState extends State<FancyOnBoarding> with TickerProviderStateMixin {
   StreamController<SlideUpdate> slideUpdateStream;
   AnimatedPageDragger animatedPageDragger;
   List<PageModel> pageList;
@@ -100,33 +119,39 @@ class _FancyOnBoardingState extends State<FancyOnBoarding>
           canDragLeftToRight: activeIndex > 0,
           canDragRightToLeft: activeIndex < pageList.length - 1,
           slideUpdateStream: this.slideUpdateStream,
+          gestureEnabled: widget.gestureEnabled,
+          opacity: opacity,
+          bottomMargin: widget.bottomMargin,
+          previousButtonText: widget.previousButtonText,
+          previousButtonShape: widget.previousButtonShape,
+          previousButtonTextStyle: widget.previousButtonTextStyle,
+          previousButtonColor: widget.previousButtonColor,
+          nextButtonText: widget.nextButtonText,
+          nextButtonShape: widget.nextButtonShape,
+          nextButtonTextStyle: widget.nextButtonTextStyle,
+          nextButtonColor: widget.nextButtonColor,
+          setPageController: widget.setPageController,
         ),
-        Positioned(
-          bottom: widget.bottomMargin,
-          right: isRTL ? null : 8,
-          left: isRTL ? 8 : null,
-          child: Opacity(
-            opacity: opacity,
-            child: widget.doneButton ??
-                FlatButton(
-                  shape: widget.doneButtonShape ??
-                      RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0)),
-                  color: widget.doneButtonBackgroundColor ??
-                      const Color(0x88FFFFFF),
-                  child: Text(
-                    widget.doneButtonText,
-                    style: widget.doneButtonTextStyle ??
-                        const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22.0,
-                            fontWeight: FontWeight.w800),
+        if (widget.onDoneButtonPressed != null)
+          Positioned(
+            bottom: widget.bottomMargin,
+            right: isRTL ? null : 8,
+            left: isRTL ? 8 : null,
+            child: Opacity(
+              opacity: opacity,
+              child: widget.doneButton ??
+                  FlatButton(
+                    shape: widget.doneButtonShape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                    color: widget.doneButtonBackgroundColor ?? const Color(0x88FFFFFF),
+                    child: Text(
+                      widget.doneButtonText,
+                      style: widget.doneButtonTextStyle ??
+                          const TextStyle(color: Colors.white, fontSize: 22.0, fontWeight: FontWeight.w800),
+                    ),
+                    onPressed: opacity == 1.0 ? widget.onDoneButtonPressed : () {},
                   ),
-                  onPressed:
-                      opacity == 1.0 ? widget.onDoneButtonPressed : () {},
-                ),
+            ),
           ),
-        ),
         widget.showSkipButton
             ? Positioned(
                 top: MediaQuery.of(context).padding.top,
@@ -203,10 +228,8 @@ class _FancyOnBoardingState extends State<FancyOnBoarding>
   }
 
   double get opacity {
-    if (pageList.length - 2 == activeIndex &&
-        slideDirection == SlideDirection.rightToLeft) return slidePercent;
-    if (pageList.length - 1 == activeIndex &&
-        slideDirection == SlideDirection.leftToRight) return 1 - slidePercent;
+    if (pageList.length - 2 == activeIndex && slideDirection == SlideDirection.rightToLeft) return slidePercent;
+    if (pageList.length - 1 == activeIndex && slideDirection == SlideDirection.leftToRight) return 1 - slidePercent;
     if (pageList.length - 1 == activeIndex) return 1.0;
     return 0.0;
   }

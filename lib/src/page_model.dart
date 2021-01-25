@@ -10,19 +10,19 @@ class PageModel {
   final Icon icon;
 
   PageModel({
-    @required this.color,
-    @required this.heroImagePath,
-    this.heroImageColor,
-    this.title,
     this.body,
+    this.color,
+    this.heroImagePath,
+    this.heroImageColor,
+    this.title,   
     this.iconImagePath,
     this.icon,
-  })  : assert(title != null),
-        assert(body != null),
-        assert(color != null),
-        assert(heroImagePath != null),
-        assert(
+  })  :  assert(
             (iconImagePath != null && icon == null) ||
                 (iconImagePath == null && icon != null),
             'Cannot provide both icon, iconImagePath');
+
+  Widget buildBody(BuildContext context) {
+    return this.body;
+  }
 }
