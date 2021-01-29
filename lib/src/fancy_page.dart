@@ -6,9 +6,11 @@ import 'fancy_image.dart';
 class FancyPage extends StatelessWidget {
   final PageModel model;
   final double percentVisible;
+  final BoxConstraints constraints;
 
   FancyPage({
     this.model,
+    this.constraints,
     this.percentVisible = 1.0,
   });
 
@@ -20,33 +22,37 @@ class FancyPage extends StatelessWidget {
         child: Opacity(
           opacity: percentVisible,
           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            if(model.heroImagePath != null) Transform(
-              transform: Matrix4.translationValues(
-                  0.0, 50.0 * (1.0 - percentVisible), 0.0),
-              child: Padding(
-                padding: EdgeInsets.only(bottom: 25.0),
-                child: FancyImage(
-                  image: model.heroImagePath,
-                  width: 200,
-                  height: 200,
-                  color: model.heroImageColor,
+            if (model.heroImagePath != null)
+              Transform(
+                transform: Matrix4.translationValues(0.0, 50.0 * (1.0 - percentVisible), 0.0),
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 25.0),
+                  child: FancyImage(
+                    image: model.heroImagePath,
+                    width: 200,
+                    height: 200,
+                    color: model.heroImageColor,
+                  ),
                 ),
               ),
-            ),
-            if(model.title != null) Transform(
-              transform: Matrix4.translationValues(
-                  0.0, 30.0 * (1.0 - percentVisible), 0.0),
-              child: Padding(
-                  padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-                  child: model.title),
-            ),
+            if (model.title != null)
+              Transform(
+                transform: Matrix4.translationValues(0.0, 30.0 * (1.0 - percentVisible), 0.0),
+                child: Padding(padding: EdgeInsets.only(top: 10.0, bottom: 10.0), child: model.title),
+              ),
             Transform(
-              transform: Matrix4.translationValues(
-                  0.0, 30.0 * (1.0 - percentVisible), 0.0),
-              child: Padding(
-                  padding: EdgeInsets.only(bottom: 75.0), child: model.buildBody(context)),
+              transform: Matrix4.translationValues(0.0, 30.0 * (1.0 - percentVisible), 0.0),
+              child: Padding(padding: EdgeInsets.only(bottom: 75.0), child: _getBody(context)),
             ),
           ]),
         ));
+  }
+
+  Widget _getBody(BuildContext context) {
+    if (model.maxHeight) {
+      return SizedBox(height: constraints.maxHeight - 75, child: model.buildBody(context));
+    } else {
+      return model.buildBody(context);
+    }
   }
 }

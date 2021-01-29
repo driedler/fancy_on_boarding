@@ -20,7 +20,7 @@ class PageDragger extends StatefulWidget {
   final ShapeBorder nextButtonShape;
   final TextStyle nextButtonTextStyle;
   final Color nextButtonColor;
-  final Function(Function(int)) setPageController;
+  final Function(bool Function(int)) setPageController;
 
   PageDragger({
     this.pageLength,
@@ -49,9 +49,11 @@ class PageDragger extends StatefulWidget {
     if (setPageController != null) {
       var updatePage = (int direction) {
         if (direction == -1) {
-          state.onChangePage(SlideDirection.leftToRight);
+          return state.onChangePage(SlideDirection.leftToRight);
         } else if (direction == 1) {
-          state.onChangePage(SlideDirection.rightToLeft);
+          return state.onChangePage(SlideDirection.rightToLeft);
+        } else {
+          return false;
         }
       };
 
@@ -115,11 +117,11 @@ class _PageDraggerState extends State<PageDragger> {
         ),
       if (widget.canDragLeftToRight && widget.previousButtonText != null)
         Positioned(
-          top: 8,
+          bottom: widget.bottomMargin + 10,
           left: 5,
           child: FlatButton(
             shape: widget.previousButtonShape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-            color: widget.previousButtonColor,
+            color: widget.previousButtonColor ?? Color.fromARGB(200, 128, 128, 128),
             child: Text(
               widget.previousButtonText,
               style: widget.previousButtonTextStyle ??
@@ -130,11 +132,11 @@ class _PageDraggerState extends State<PageDragger> {
         ),
       if (widget.canDragRightToLeft && widget.nextButtonText != null)
         Positioned(
-          top: 8,
+          bottom: widget.bottomMargin + 10,
           right: 5,
           child: FlatButton(
             shape: widget.nextButtonShape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-            color: widget.nextButtonColor,
+            color: widget.nextButtonColor ?? Color.fromARGB(200, 128, 128, 128),
             child: Text(
               widget.nextButtonText,
               style: widget.nextButtonTextStyle ??
@@ -146,8 +148,15 @@ class _PageDraggerState extends State<PageDragger> {
     ]);
   }
 
-  void onChangePage(SlideDirection direction) {
-    const PERCENT_PER_MILLISECOND = 1.0 / 32.0;
+  bool onChangePage(SlideDirection direction) {
+    if (direction == SlideDirection.leftToRight && !widget.canDragLeftToRight) {
+      return false;
+    }
+    if (direction == SlideDirection.rightToLeft && !widget.canDragRightToLeft) {
+      return false;
+    }
+
+    const PERCENT_PER_MILLISECOND = 1.0 / 60.0;
     Timer.periodic(const Duration(milliseconds: 1), (Timer t) {
       slidePercent += PERCENT_PER_MILLISECOND;
       if (slidePercent >= 1.0) {
@@ -166,6 +175,8 @@ class _PageDraggerState extends State<PageDragger> {
         ));
       }
     });
+
+    return true;
   }
 }
 

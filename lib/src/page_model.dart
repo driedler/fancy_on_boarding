@@ -8,6 +8,7 @@ class PageModel {
   final Widget body;
   final String iconImagePath;
   final Icon icon;
+  final bool maxHeight;
 
   PageModel({
     this.body,
@@ -17,6 +18,7 @@ class PageModel {
     this.title,   
     this.iconImagePath,
     this.icon,
+    this.maxHeight,
   })  :  assert(
             (iconImagePath != null && icon == null) ||
                 (iconImagePath == null && icon != null),

@@ -34,7 +34,7 @@ class FancyOnBoarding extends StatefulWidget {
   final TextStyle nextButtonTextStyle;
   final Color nextButtonColor;
   final bool gestureEnabled;
-  final Function(Function(int)) setPageController;
+  final Function(bool Function(int)) setPageController;
 
   FancyOnBoarding({
     @required this.pageList,
@@ -88,93 +88,98 @@ class _FancyOnBoardingState extends State<FancyOnBoarding> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        FancyPage(
-          model: pageList[activeIndex],
-          percentVisible: 1.0,
-        ),
-        PageReveal(
-          revealPercent: slidePercent,
-          child: FancyPage(
-            model: pageList[nextPageIndex],
-            percentVisible: slidePercent,
+    return LayoutBuilder(builder: (context, constraints) {
+      return Stack(
+        children: [
+          FancyPage(
+            constraints: constraints,
+            model: pageList[activeIndex],
+            percentVisible: 1.0,
           ),
-        ),
-        Positioned(
-          bottom: widget.bottomMargin,
-          child: PagerIndicator(
-            isRtl: isRTL,
-            viewModel: PagerIndicatorViewModel(
-              pageList,
-              activeIndex,
-              slideDirection,
-              slidePercent,
+          PageReveal(
+            revealPercent: slidePercent,
+            child: FancyPage(
+              constraints: constraints,
+              model: pageList[nextPageIndex],
+              percentVisible: slidePercent,
             ),
           ),
-        ),
-        PageDragger(
-          pageLength: pageList.length - 1,
-          currentIndex: activeIndex,
-          canDragLeftToRight: activeIndex > 0,
-          canDragRightToLeft: activeIndex < pageList.length - 1,
-          slideUpdateStream: this.slideUpdateStream,
-          gestureEnabled: widget.gestureEnabled,
-          opacity: opacity,
-          bottomMargin: widget.bottomMargin,
-          previousButtonText: widget.previousButtonText,
-          previousButtonShape: widget.previousButtonShape,
-          previousButtonTextStyle: widget.previousButtonTextStyle,
-          previousButtonColor: widget.previousButtonColor,
-          nextButtonText: widget.nextButtonText,
-          nextButtonShape: widget.nextButtonShape,
-          nextButtonTextStyle: widget.nextButtonTextStyle,
-          nextButtonColor: widget.nextButtonColor,
-          setPageController: widget.setPageController,
-        ),
-        if (widget.onDoneButtonPressed != null)
           Positioned(
             bottom: widget.bottomMargin,
-            right: isRTL ? null : 8,
-            left: isRTL ? 8 : null,
-            child: Opacity(
-              opacity: opacity,
-              child: widget.doneButton ??
-                  FlatButton(
-                    shape: widget.doneButtonShape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-                    color: widget.doneButtonBackgroundColor ?? const Color(0x88FFFFFF),
-                    child: Text(
-                      widget.doneButtonText,
-                      style: widget.doneButtonTextStyle ??
-                          const TextStyle(color: Colors.white, fontSize: 22.0, fontWeight: FontWeight.w800),
-                    ),
-                    onPressed: opacity == 1.0 ? widget.onDoneButtonPressed : () {},
-                  ),
+            child: PagerIndicator(
+              isRtl: isRTL,
+              viewModel: PagerIndicatorViewModel(
+                pageList,
+                activeIndex,
+                slideDirection,
+                slidePercent,
+              ),
             ),
           ),
-        widget.showSkipButton
-            ? Positioned(
-                top: MediaQuery.of(context).padding.top,
-                right: isRTL ? null : 0,
-                left: isRTL ? 0 : null,
-                child: widget.skipButton ??
+          PageDragger(
+            pageLength: pageList.length - 1,
+            currentIndex: activeIndex,
+            canDragLeftToRight: activeIndex > 0,
+            canDragRightToLeft: activeIndex < pageList.length - 1,
+            slideUpdateStream: this.slideUpdateStream,
+            gestureEnabled: widget.gestureEnabled,
+            opacity: opacity,
+            bottomMargin: widget.bottomMargin,
+            previousButtonText: widget.previousButtonText,
+            previousButtonShape: widget.previousButtonShape,
+            previousButtonTextStyle: widget.previousButtonTextStyle,
+            previousButtonColor: widget.previousButtonColor,
+            nextButtonText: widget.nextButtonText,
+            nextButtonShape: widget.nextButtonShape,
+            nextButtonTextStyle: widget.nextButtonTextStyle,
+            nextButtonColor: widget.nextButtonColor,
+            setPageController: widget.setPageController,
+          ),
+          if (widget.onDoneButtonPressed != null)
+            Positioned(
+              bottom: widget.bottomMargin,
+              right: isRTL ? null : 8,
+              left: isRTL ? 8 : null,
+              child: Opacity(
+                opacity: opacity,
+                child: widget.doneButton ??
                     FlatButton(
-                      color: widget.skipButtonColor,
+                      shape:
+                          widget.doneButtonShape ?? RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                      color: widget.doneButtonBackgroundColor ?? const Color(0x88FFFFFF),
                       child: Text(
-                        widget.skipButtonText,
-                        style: widget.skipButtonTextStyle ??
-                            const TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w800,
-                            ),
+                        widget.doneButtonText,
+                        style: widget.doneButtonTextStyle ??
+                            const TextStyle(color: Colors.white, fontSize: 22.0, fontWeight: FontWeight.w800),
                       ),
-                      onPressed: widget.onSkipButtonPressed,
+                      onPressed: opacity == 1.0 ? widget.onDoneButtonPressed : () {},
                     ),
-              )
-            : Offstage()
-      ],
-    );
+              ),
+            ),
+          widget.showSkipButton
+              ? Positioned(
+                  top: MediaQuery.of(context).padding.top,
+                  right: isRTL ? null : 0,
+                  left: isRTL ? 0 : null,
+                  child: widget.skipButton ??
+                      FlatButton(
+                        color: widget.skipButtonColor,
+                        child: Text(
+                          widget.skipButtonText,
+                          style: widget.skipButtonTextStyle ??
+                              const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                        onPressed: widget.onSkipButtonPressed,
+                      ),
+                )
+              : Offstage()
+        ],
+      );
+    });
   }
 
   _listenSlideUpdate() {
