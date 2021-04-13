@@ -189,9 +189,9 @@ class _FancyOnBoardingState extends State<FancyOnBoarding> with TickerProviderSt
           slideDirection = event.direction;
           slidePercent = event.slidePercent;
 
-          if (slideDirection == SlideDirection.leftToRight) {
+          if (slideDirection == SlideDirection.leftToRight && activeIndex > 0) {
             nextPageIndex = activeIndex - 1;
-          } else if (slideDirection == SlideDirection.rightToLeft) {
+          } else if (slideDirection == SlideDirection.rightToLeft && activeIndex < pageList.length - 1) {
             nextPageIndex = activeIndex + 1;
           } else {
             nextPageIndex = activeIndex;
