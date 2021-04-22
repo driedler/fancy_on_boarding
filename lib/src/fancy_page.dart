@@ -6,17 +6,16 @@ import 'fancy_image.dart';
 class FancyPage extends StatelessWidget {
   final PageModel model;
   final double percentVisible;
-  final BoxConstraints constraints;
 
   FancyPage({
     this.model,
-    this.constraints,
     this.percentVisible = 1.0,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return LayoutBuilder(builder: (context, constraints) {
+      return Container(
         width: double.infinity,
         color: model.color,
         child: Opacity(
@@ -42,17 +41,21 @@ class FancyPage extends StatelessWidget {
               ),
             Transform(
               transform: Matrix4.translationValues(0.0, 30.0 * (1.0 - percentVisible), 0.0),
-              child: Padding(padding: EdgeInsets.only(bottom: 75.0), child: _getBody(context)),
+              child: Padding(
+                padding: EdgeInsets.only(bottom: 75.0),
+                child: _getBody(context, constraints),
+              ),
             ),
           ]),
-        ));
+        ),
+      );
+    });
   }
 
-  Widget _getBody(BuildContext context) {
-    if (model.maxHeight) {
-      return SizedBox(height: constraints.maxHeight - 75, child: model.buildBody(context));
-    } else {
-      return model.buildBody(context);
-    }
+  Widget _getBody(BuildContext context, BoxConstraints constraints) {
+    return SizedBox(
+      height: constraints.maxHeight - 75,
+      child: model.buildBody(context),
+    );
   }
 }
